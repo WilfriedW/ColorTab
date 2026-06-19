@@ -1,0 +1,62 @@
+#colortab-border-top,
+#colortab-border-bottom,
+#colortab-border-left,
+#colortab-border-right {
+  position: fixed;
+  z-index: 2147483647;
+  pointer-events: none;
+  transition: background-color 0.3s ease;
+}
+
+#colortab-border-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+}
+
+#colortab-border-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+}
+
+#colortab-border-left {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 6px;
+}
+
+#colortab-border-right {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 6px;
+}
+
+#colortab-badge {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 2147483647;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+#colortab-badge.visible {
+  opacity: 1;
+}
+
+#colortab-badge.fade-out {
+  opacity: 0;
+}

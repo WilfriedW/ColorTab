@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <h1>ColorTab</h1>
+    <p class="subtitle">Colorisez vos onglets par domaine</p>
+  </div>
+
+  <div id="rules-list"></div>
+
+  <button id="add-rule" class="btn-add">+ Ajouter une règle</button>
+
+  <label class="option-row">
+    <input type="checkbox" id="group-tabs">
+    <span>Grouper les onglets par règle</span>
+  </label>
+
+  <div class="help">
+    <details>
+      <summary>Aide sur les patterns</summary>
+      <ul>
+        <li><code>google.com</code> — le domaine <em>et</em> tous ses sous-domaines (www, mail…)</li>
+        <li><code>*.service-now.com</code> — uniquement les sous-domaines (pas le domaine nu)</li>
+        <li><code>test*.service-now.com</code> — sous-domaines commençant par "test"</li>
+      </ul>
+    </details>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

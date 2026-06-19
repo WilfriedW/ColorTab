@@ -1,0 +1,8 @@
+# Réglages locaux Claude Code (ne pas partager)
+.claude/
+
+# macOS
+.DS_Store
+
+# Node (si un jour des dépendances sont ajoutées)
+node_modules/
