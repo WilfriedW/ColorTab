@@ -1,14 +1,39 @@
 import { nearestChromeGroupColor } from "./colors.js";
+import { shouldDiscard } from "./discard.js";
 
 const DEFAULT_RULES = [
   { pattern: "*.service-now.com", color: "#FF8C00", label: "ServiceNow (défaut)" }
 ];
 
+const DISCARD_ALARM = "colortab-discard";
+
+function ensureDiscardAlarm() {
+  chrome.alarms.create(DISCARD_ALARM, { periodInMinutes: 1 });
+}
+
 chrome.runtime.onInstalled.addListener(async () => {
-  const { rules } = await chrome.storage.sync.get("rules");
-  if (!rules) {
-    await chrome.storage.sync.set({ rules: DEFAULT_RULES });
+  const stored = await chrome.storage.sync.get([
+    "rules",
+    "autoDiscard",
+    "discardMinutes",
+  ]);
+  const defaults = {};
+  if (!stored.rules) defaults.rules = DEFAULT_RULES;
+  if (stored.autoDiscard === undefined) defaults.autoDiscard = true;
+  if (stored.discardMinutes === undefined) defaults.discardMinutes = 5;
+  if (Object.keys(defaults).length > 0) {
+    await chrome.storage.sync.set(defaults);
   }
+  ensureDiscardAlarm();
+});
+
+chrome.runtime.onStartup.addListener(ensureDiscardAlarm);
+
+// Filet MV3 : à chaque réveil du service worker, on ré-assure l'alarme si elle a
+// disparu (au-delà de onInstalled/onStartup). create() étant idempotent, c'est
+// sans risque. Garantit que le balayage ne s'arrête jamais silencieusement.
+chrome.alarms.get(DISCARD_ALARM, (existing) => {
+  if (!existing) ensureDiscardAlarm();
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -184,5 +209,32 @@ async function ungroupAllOurGroups(rules) {
     }
   } catch {
     // ignorer
+  }
+}
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name !== DISCARD_ALARM) return;
+  await discardInactiveTabs();
+});
+
+async function discardInactiveTabs() {
+  const { autoDiscard, discardMinutes } = await chrome.storage.sync.get([
+    "autoDiscard",
+    "discardMinutes",
+  ]);
+  if (autoDiscard === false) return; // undefined = activé par défaut
+
+  const thresholdMs = (discardMinutes || 5) * 60 * 1000;
+  const now = Date.now();
+  const tabs = await chrome.tabs.query({});
+
+  for (const tab of tabs) {
+    if (!shouldDiscard(tab, now, thresholdMs)) continue;
+    try {
+      await chrome.tabs.discard(tab.id);
+    } catch {
+      // Page non « discardable » (chrome://, nouvel onglet…) ou onglet en
+      // transition → ignorer.
+    }
   }
 }

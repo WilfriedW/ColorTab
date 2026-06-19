@@ -222,3 +222,25 @@ body {
   cursor: pointer;
   accent-color: var(--accent);
 }
+
+.option-sub {
+  margin-top: 8px;
+  margin-left: 30px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.option-sub select {
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+}
+
+.option-sub select:focus {
+  border-color: var(--accent);
+}

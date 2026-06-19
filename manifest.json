@@ -7,7 +7,8 @@
     "activeTab",
     "storage",
     "tabs",
-    "tabGroups"
+    "tabGroups",
+    "alarms"
   ],
   "action": {
     "default_popup": "popup/popup.html",
