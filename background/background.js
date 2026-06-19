@@ -29,6 +29,13 @@ chrome.runtime.onInstalled.addListener(async () => {
 
 chrome.runtime.onStartup.addListener(ensureDiscardAlarm);
 
+// Filet MV3 : à chaque réveil du service worker, on ré-assure l'alarme si elle a
+// disparu (au-delà de onInstalled/onStartup). create() étant idempotent, c'est
+// sans risque. Garantit que le balayage ne s'arrête jamais silencieusement.
+chrome.alarms.get(DISCARD_ALARM, (existing) => {
+  if (!existing) ensureDiscardAlarm();
+});
+
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.url || changeInfo.status === "complete") {
     await applyColorToTab(tabId, tab.url);
