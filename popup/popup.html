@@ -19,6 +19,21 @@
     <span>Grouper les onglets par règle</span>
   </label>
 
+  <label class="option-row">
+    <input type="checkbox" id="auto-discard">
+    <span>Mettre en veille les onglets inactifs</span>
+  </label>
+  <label class="option-row option-sub">
+    <span>après</span>
+    <select id="discard-minutes">
+      <option value="5">5 min</option>
+      <option value="10">10 min</option>
+      <option value="15">15 min</option>
+      <option value="30">30 min</option>
+      <option value="60">60 min</option>
+    </select>
+  </label>
+
   <div class="help">
     <details>
       <summary>Aide sur les patterns</summary>

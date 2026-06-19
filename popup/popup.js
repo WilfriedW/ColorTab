@@ -7,7 +7,12 @@ let rules = [];
 let saveTimer = null;
 
 async function init() {
-  const data = await chrome.storage.sync.get(["rules", "groupTabs"]);
+  const data = await chrome.storage.sync.get([
+    "rules",
+    "groupTabs",
+    "autoDiscard",
+    "discardMinutes",
+  ]);
   rules = data.rules || [];
   renderRules();
 
@@ -17,6 +22,18 @@ async function init() {
   groupToggle.checked = !!data.groupTabs;
   groupToggle.addEventListener("change", (e) => {
     chrome.storage.sync.set({ groupTabs: e.target.checked });
+  });
+
+  const autoDiscard = document.getElementById("auto-discard");
+  autoDiscard.checked = data.autoDiscard !== false; // activé par défaut
+  autoDiscard.addEventListener("change", (e) => {
+    chrome.storage.sync.set({ autoDiscard: e.target.checked });
+  });
+
+  const discardMinutes = document.getElementById("discard-minutes");
+  discardMinutes.value = String(data.discardMinutes || 5);
+  discardMinutes.addEventListener("change", (e) => {
+    chrome.storage.sync.set({ discardMinutes: parseInt(e.target.value, 10) });
   });
 
   // Filet de sécurité : si le popup se ferme alors qu'une écriture est encore en
