@@ -1,134 +1,135 @@
 # 🎨 ColorTab
 
-> Repère d'un coup d'œil sur quelle instance client tu te trouves.
+> Know which client instance you're on, at a glance.
 
-ColorTab colorise tes onglets Chrome **en fonction du domaine**. Quand tu ouvres
-plein d'instances de plein de clients (ServiceNow & autres), tu vois
-immédiatement **dans quel groupe** et **de quelle couleur** est l'onglet — fini
-de cliquer dans la mauvaise instance « prod du client X ».
+ColorTab assigns a **color to your Chrome tabs based on their domain**. Define a
+rule per domain, and every matching tab gets a clear visual marker — so you never
+mix up two look‑alike instances again.
 
-Chaque règle de domaine déclenche **quatre repères visuels** :
+Each rule gives you **four visual cues**:
 
-- 🟩 **une pastille colorée** sur l'icône de l'onglet (couleur exacte, visible même onglet inactif) ;
-- 📏 **un liseré coloré** autour de la page ;
-- 🏷️ **un badge** en haut à droite avec le nom de la règle (reste affiché) ;
-- 🗂️ **un regroupement natif** des onglets par client (optionnel).
+- 🟩 **a colored dot** on the tab icon (exact color, visible even when the tab is inactive);
+- 📏 **a colored border** around the page;
+- 🏷️ **a badge** in the top‑right corner showing the rule's name (stays visible);
+- 🗂️ **native tab grouping** by client (optional).
+
+Built for people who juggle many instances across many clients (ServiceNow & the
+like), where a single misclick on the wrong *production* tab is one too many.
 
 ---
 
-## ✨ Fonctionnalités
+## ✨ Features
 
-- **Règles par domaine** avec jokers (`*`) et correspondance « domaine + sous-domaines ».
-- **Couleur exacte** pour la pastille / le liseré / le badge ; couleur aléatoire à la création d'une règle.
-- **Groupes d'onglets natifs Chrome** (option activable) : tous les onglets d'un même client sont regroupés et colorés.
-- **Dark mode automatique** du popup (suit le thème de ton système).
-- **Synchronisation** des règles via ton compte Google (`chrome.storage.sync`) : mêmes règles sur tes différents postes.
-- **Application en direct** : ajoute/modifie une règle, les onglets ouverts se mettent à jour sans rechargement.
+- **Domain rules** with wildcards (`*`) and "domain + subdomains" matching.
+- **Exact colors** for the dot / border / badge; a random color is assigned when you create a rule.
+- **Native Chrome tab groups** (optional toggle): all of a client's tabs get grouped and colored.
+- **Automatic dark mode** for the popup (follows your system theme).
+- **Synced rules** through your Google account (`chrome.storage.sync`): same rules across your machines.
+- **Live updates**: add or edit a rule and open tabs update without a reload.
 
 ---
 
 ## 🚀 Installation
 
-L'extension n'est pas (encore) sur le Chrome Web Store — installation en **mode développeur** :
+ColorTab isn't on the Chrome Web Store (yet) — install it in **developer mode**:
 
-1. Récupère le code :
+1. Get the code:
    ```bash
    git clone https://github.com/WilfriedW/ColorTab.git
    ```
-   (ou télécharge le ZIP puis décompresse-le)
-2. Ouvre `chrome://extensions` dans Chrome.
-3. Active **« Mode développeur »** (en haut à droite).
-4. Clique **« Charger l'extension non empaquetée »** et sélectionne le dossier `ColorTab`.
-5. L'icône ColorTab apparaît dans la barre d'outils. 🎉
+   (or download the ZIP and extract it)
+2. Open `chrome://extensions` in Chrome.
+3. Enable **Developer mode** (top‑right).
+4. Click **Load unpacked** and select the `ColorTab` folder.
+5. The ColorTab icon shows up in your toolbar. 🎉
 
-> Compatible avec tous les navigateurs basés sur Chromium (Chrome, Edge, Brave…).
-
----
-
-## 🧭 Utilisation
-
-1. Clique sur l'icône **ColorTab** pour ouvrir le popup.
-2. **« + Ajouter une règle »** : une couleur aléatoire est assignée (modifiable via le carré de couleur).
-3. Saisis le **pattern** du domaine (voir ci-dessous) et un **label** (le nom affiché dans le badge et le groupe).
-4. Optionnel : coche **« Grouper les onglets par règle »** pour regrouper et colorer les onglets nativement.
-
-Les onglets déjà ouverts se colorent en direct. Astuce : la première fois après
-une mise à jour de l'extension, recharge une fois l'onglet concerné.
+> Works on any Chromium‑based browser (Chrome, Edge, Brave…).
 
 ---
 
-## 🔤 Syntaxe des patterns
+## 🧭 Usage
 
-| Pattern | Ce que ça matche |
+1. Click the **ColorTab** icon to open the popup.
+2. **"+ Add a rule"**: a random color is assigned (change it via the color swatch).
+3. Enter the domain **pattern** (see below) and a **label** (the name shown in the badge and the group).
+4. Optional: tick **"Group tabs by rule"** to natively group and color the tabs.
+
+Open tabs update live. Tip: right after updating the extension, reload the
+affected tab once so it picks up the new version.
+
+---
+
+## 🔤 Pattern syntax
+
+| Pattern | What it matches |
 |---|---|
-| `google.com` | le domaine **et tous ses sous-domaines** : `google.com`, `www.google.com`, `mail.google.com`… |
-| `*.service-now.com` | **uniquement les sous-domaines** : `dev123.service-now.com` (pas le domaine nu) |
-| `agircarrco*.service-now.com` | sous-domaines **commençant par** `agircarrco` |
+| `google.com` | the domain **and all its subdomains**: `google.com`, `www.google.com`, `mail.google.com`… |
+| `*.service-now.com` | **subdomains only**: `dev123.service-now.com` (not the bare domain) |
+| `agircarrco*.service-now.com` | subdomains **starting with** `agircarrco` |
 
-Le `*` remplace une portion de nom **sans point**. Un pattern sans `*` couvre le
-domaine et toute sa hiérarchie de sous-domaines. Les correspondances sont sûres :
-`google.com` ne matche **ni** `notgoogle.com` **ni** `google.com.evil.com`.
+`*` stands for a name segment **without a dot**. A pattern without `*` covers the
+domain and its whole subdomain hierarchy. Matching is safe: `google.com` matches
+**neither** `notgoogle.com` **nor** `google.com.evil.com`.
 
-Quand plusieurs règles correspondent, la plus **spécifique** (la plus longue, le
-moins de jokers) l'emporte.
+When several rules match, the most **specific** one wins (longest, fewest wildcards).
 
 ---
 
-## 💡 Exemple : jongler avec des instances clients
+## 💡 Example: juggling client instances
 
-Typiquement, avec plusieurs instances ServiceNow :
+A typical setup with several ServiceNow instances:
 
-| Pattern | Couleur | Label |
+| Pattern | Color | Label |
 |---|---|---|
-| `clientA-prod.service-now.com` | 🔴 rouge | `CLIENT A — PROD` |
-| `clientA-qualif.service-now.com` | 🟢 vert | `CLIENT A — QUALIF` |
-| `clientB*.service-now.com` | 🔵 bleu | `CLIENT B` |
+| `clientA-prod.service-now.com` | 🔴 red | `CLIENT A — PROD` |
+| `clientA-qualif.service-now.com` | 🟢 green | `CLIENT A — QUALIF` |
+| `clientB*.service-now.com` | 🔵 blue | `CLIENT B` |
 
-Résultat : un coup d'œil à la barre d'onglets suffit pour savoir où tu es. Le
-**rouge = prod**, on réfléchit à deux fois avant de cliquer. 😉
-
----
-
-## ⚙️ Comment ça marche
-
-- Un **service worker** (`background/`) lit l'URL de chaque onglet, trouve la règle correspondante, puis pilote la couleur et le regroupement.
-- Un **content script** (`content/`) injecté dans la page dessine la pastille (favicon), le liseré et le badge.
-- Le **popup** (`popup/`) gère les règles et l'option de regroupement, stockées dans `chrome.storage.sync`.
+One glance at the tab bar tells you where you are. **Red = production**, so you
+think twice before clicking. 😉
 
 ---
 
-## ⚠️ Limites connues
+## ⚙️ How it works
 
-- **Groupes d'onglets** : Chrome n'offre que **8 couleurs natives** de groupe ; la couleur du groupe est donc la plus proche de ta couleur (la pastille, elle, garde la teinte exacte). Grouper **déplace** aussi les onglets pour les coller (comportement natif de Chrome).
-- **Pages restreintes** : la pastille/le liseré n'apparaissent pas sur `chrome://`, le Chrome Web Store, les PDF ou les pages vides (le content script n'y est pas injecté).
-- **Ownership des groupes** : un groupe est considéré « à nous » s'il porte le même nom qu'une règle ; évite de nommer un groupe manuel exactement comme un label de règle.
+- A **service worker** (`background/`) reads each tab's URL, finds the matching rule, then drives the color and grouping.
+- A **content script** (`content/`) injected into the page draws the dot (favicon), the border and the badge.
+- The **popup** (`popup/`) manages the rules and the grouping option, stored in `chrome.storage.sync`.
 
 ---
 
-## 🗂️ Structure du projet
+## ⚠️ Known limitations
+
+- **Tab groups**: Chrome offers only **8 native group colors**, so the group color is the closest match to yours (the dot keeps the exact hue). Grouping also **moves** tabs to sit them together (native Chrome behavior).
+- **Restricted pages**: the dot/border don't appear on `chrome://`, the Chrome Web Store, PDFs or blank pages (the content script isn't injected there).
+- **Group ownership**: a group is considered "ours" if its title matches a rule's label; avoid naming a manual group exactly like a rule label.
+
+---
+
+## 🗂️ Project structure
 
 ```
 ColorTab/
-├── manifest.json          # Déclaration de l'extension (MV3)
+├── manifest.json          # Extension manifest (MV3)
 ├── background/
-│   ├── background.js       # Service worker : règles, couleurs, groupes
-│   └── colors.js           # Mapping couleur → couleur native Chrome (+ test)
+│   ├── background.js       # Service worker: rules, colors, groups
+│   └── colors.js           # Color → native Chrome color mapping (+ test)
 ├── content/
-│   ├── content.js          # Pastille (favicon), liseré, badge
+│   ├── content.js          # Dot (favicon), border, badge
 │   └── content.css
 ├── popup/
-│   ├── popup.html / .js / .css   # Réglage des règles + dark mode
+│   ├── popup.html / .js / .css   # Rule editor + dark mode
 └── icons/
 ```
 
-Tests de la logique de couleur :
+Run the color‑logic test:
 ```bash
 node background/colors.test.mjs
 ```
 
 ---
 
-## 🤝 Partage
+## 🤝 Sharing
 
-Projet perso, partagé entre collègues — n'hésite pas à proposer des
-améliorations ou à signaler un souci. Bon code couleur ! 🌈
+A personal project, shared among colleagues — feel free to suggest improvements
+or report issues. Happy color‑coding! 🌈
