@@ -24,6 +24,7 @@ like), where a single misclick on the wrong *production* tab is one too many.
 - **Exact colors** for the dot / border / badge; a random color is assigned when you create a rule.
 - **Native Chrome tab groups** (optional toggle): all of a client's tabs get grouped and colored.
 - **Memory saver** (optional toggle): inactive tabs are automatically put to sleep to free RAM, and wake up on click.
+- **Presentation zoom**: a keyboard shortcut toggles the active tab between 100% and 150% — handy right before sharing your screen.
 - **Automatic dark mode** for the popup (follows your system theme).
 - **Synced rules** through your Google account (`chrome.storage.sync`): same rules across your machines.
 - **Live updates**: add or edit a rule and open tabs update without a reload.
@@ -73,6 +74,19 @@ but stays in the tab bar, and Chrome reloads it on click (with a short delay).
 > ⚠️ Heads‑up: putting a tab to sleep **reloads** it on return, so **unsaved form
 > input** (e.g. a half‑filled ServiceNow form left idle past the delay) is lost.
 > Pin the tab to protect it.
+
+---
+
+## 🔍 Presentation zoom
+
+About to share your screen? Bump the page up so everyone can read it.
+
+- Press **`Alt+Shift+Z`** to toggle the **active tab** between **100% and 150%**.
+- Press it again to go back to 100%.
+- Rebind the shortcut anytime at `chrome://extensions/shortcuts`.
+
+Browsers don't let an extension detect screen sharing, so this is a deliberate
+one‑key action rather than something automatic.
 
 ---
 
@@ -132,7 +146,8 @@ ColorTab/
 ├── background/
 │   ├── background.js       # Service worker: rules, colors, groups, auto-discard
 │   ├── colors.js           # Color → native Chrome color mapping (+ test)
-│   └── discard.js          # Inactive-tab sleep decision (+ test)
+│   ├── discard.js          # Inactive-tab sleep decision (+ test)
+│   └── zoom.js             # Presentation-zoom toggle level (+ test)
 ├── content/
 │   ├── content.js          # Dot (favicon), border, badge
 │   └── content.css

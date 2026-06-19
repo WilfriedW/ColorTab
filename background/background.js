@@ -1,5 +1,6 @@
 import { nearestChromeGroupColor } from "./colors.js";
 import { shouldDiscard } from "./discard.js";
+import { nextPresentationZoom } from "./zoom.js";
 
 const DEFAULT_RULES = [
   { pattern: "*.service-now.com", color: "#FF8C00", label: "ServiceNow (défaut)" }
@@ -236,5 +237,30 @@ async function discardInactiveTabs() {
       // Page non « discardable » (chrome://, nouvel onglet…) ou onglet en
       // transition → ignorer.
     }
+  }
+}
+
+// Mode présentation : raccourci clavier qui bascule l'onglet actif entre 100 % et
+// 150 % (pratique au moment de partager son écran).
+chrome.commands.onCommand.addListener(async (command, tab) => {
+  if (command !== "toggle-presentation-zoom") return;
+  await togglePresentationZoom(tab);
+});
+
+async function togglePresentationZoom(tab) {
+  try {
+    let tabId = tab && tab.id;
+    if (tabId === undefined) {
+      const [active] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+      tabId = active && active.id;
+    }
+    if (tabId === undefined) return;
+    const current = await chrome.tabs.getZoom(tabId);
+    await chrome.tabs.setZoom(tabId, nextPresentationZoom(current));
+  } catch {
+    // Page non zoomable (chrome://, Web Store…) ou onglet inaccessible → ignorer.
   }
 }
