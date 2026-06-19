@@ -69,7 +69,7 @@ but stays in the tab bar, and Chrome reloads it on click (with a short delay).
 
 - Toggle **"Put inactive tabs to sleep"** in the popup (on by default).
 - Choose the delay: **5 / 10 / 15 / 30 / 60 minutes** (default 5).
-- **Never slept**: the active tab of each window, and pinned tabs.
+- **Never slept**: the active tab of each window, pinned tabs, and **Teams / Outlook** (kept alive for notifications and calls).
 
 > ⚠️ Heads‑up: putting a tab to sleep **reloads** it on return, so **unsaved form
 > input** (e.g. a half‑filled ServiceNow form left idle past the delay) is lost.
