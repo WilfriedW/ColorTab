@@ -23,6 +23,7 @@ like), where a single misclick on the wrong *production* tab is one too many.
 - **Domain rules** with wildcards (`*`) and "domain + subdomains" matching.
 - **Exact colors** for the dot / border / badge; a random color is assigned when you create a rule.
 - **Native Chrome tab groups** (optional toggle): all of a client's tabs get grouped and colored.
+- **Memory saver** (optional toggle): inactive tabs are automatically put to sleep to free RAM, and wake up on click.
 - **Automatic dark mode** for the popup (follows your system theme).
 - **Synced rules** through your Google account (`chrome.storage.sync`): same rules across your machines.
 - **Live updates**: add or edit a rule and open tabs update without a reload.
@@ -59,6 +60,22 @@ affected tab once so it picks up the new version.
 
 ---
 
+## 💤 Memory saver (auto‑sleep)
+
+When you keep dozens of instances open, idle tabs eat RAM. ColorTab can **put
+inactive tabs to sleep automatically**: a sleeping tab is unloaded from memory
+but stays in the tab bar, and Chrome reloads it on click (with a short delay).
+
+- Toggle **"Put inactive tabs to sleep"** in the popup (on by default).
+- Choose the delay: **5 / 10 / 15 / 30 / 60 minutes** (default 5).
+- **Never slept**: the active tab of each window, and pinned tabs.
+
+> ⚠️ Heads‑up: putting a tab to sleep **reloads** it on return, so **unsaved form
+> input** (e.g. a half‑filled ServiceNow form left idle past the delay) is lost.
+> Pin the tab to protect it.
+
+---
+
 ## 🔤 Pattern syntax
 
 | Pattern | What it matches |
@@ -92,9 +109,9 @@ think twice before clicking. 😉
 
 ## ⚙️ How it works
 
-- A **service worker** (`background/`) reads each tab's URL, finds the matching rule, then drives the color and grouping.
+- A **service worker** (`background/`) reads each tab's URL, finds the matching rule, then drives the color and grouping. A periodic alarm also sleeps inactive tabs (`chrome.tabs.discard`).
 - A **content script** (`content/`) injected into the page draws the dot (favicon), the border and the badge.
-- The **popup** (`popup/`) manages the rules and the grouping option, stored in `chrome.storage.sync`.
+- The **popup** (`popup/`) manages the rules, the grouping option and the memory‑saver settings, stored in `chrome.storage.sync`.
 
 ---
 
@@ -103,6 +120,7 @@ think twice before clicking. 😉
 - **Tab groups**: Chrome offers only **8 native group colors**, so the group color is the closest match to yours (the dot keeps the exact hue). Grouping also **moves** tabs to sit them together (native Chrome behavior).
 - **Restricted pages**: the dot/border don't appear on `chrome://`, the Chrome Web Store, PDFs or blank pages (the content script isn't injected there).
 - **Group ownership**: a group is considered "ours" if its title matches a rule's label; avoid naming a manual group exactly like a rule label.
+- **Memory saver**: a slept tab reloads on return, losing **unsaved form input** left idle past the delay. Tabs playing audio are **not** spared (they get slept too). The check runs once a minute, so the real delay is between *N* and *N+1* minutes.
 
 ---
 
@@ -112,8 +130,9 @@ think twice before clicking. 😉
 ColorTab/
 ├── manifest.json          # Extension manifest (MV3)
 ├── background/
-│   ├── background.js       # Service worker: rules, colors, groups
-│   └── colors.js           # Color → native Chrome color mapping (+ test)
+│   ├── background.js       # Service worker: rules, colors, groups, auto-discard
+│   ├── colors.js           # Color → native Chrome color mapping (+ test)
+│   └── discard.js          # Inactive-tab sleep decision (+ test)
 ├── content/
 │   ├── content.js          # Dot (favicon), border, badge
 │   └── content.css
