@@ -38,7 +38,7 @@
 
 #colortab-badge {
   position: fixed;
-  top: 8px;
+  bottom: 8px;
   right: 8px;
   z-index: 2147483647;
   padding: 3px 10px;

@@ -144,7 +144,7 @@ function ensureElements() {
     badge.id = "colortab-badge";
     badge.style.cssText = `
       position: fixed !important;
-      top: 8px !important;
+      bottom: 8px !important;
       right: 8px !important;
       z-index: 2147483647 !important;
       padding: 6px 14px !important;
