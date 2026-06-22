@@ -1,6 +1,7 @@
 import { nearestChromeGroupColor } from "./colors.js";
 import { shouldDiscard } from "./discard.js";
 import { nextPresentationZoom } from "./zoom.js";
+import { planGroupMerges } from "./groups.js";
 
 const DEFAULT_RULES = [
   { pattern: "*.service-now.com", color: "#FF8C00", label: "ServiceNow (défaut)" }
@@ -26,9 +27,13 @@ chrome.runtime.onInstalled.addListener(async () => {
     await chrome.storage.sync.set(defaults);
   }
   ensureDiscardAlarm();
+  mergeDuplicateGroups();
 });
 
-chrome.runtime.onStartup.addListener(ensureDiscardAlarm);
+chrome.runtime.onStartup.addListener(() => {
+  ensureDiscardAlarm();
+  mergeDuplicateGroups();
+});
 
 // Filet MV3 : à chaque réveil du service worker, on ré-assure l'alarme si elle a
 // disparu (au-delà de onInstalled/onStartup). create() étant idempotent, c'est
@@ -169,7 +174,26 @@ async function isOurGroup(groupId, rules) {
   }
 }
 
-async function updateTabGroup(tab, match, groupTabs, rules) {
+// Verrou : sérialise toutes les opérations de groupe. Sans ça, à la restauration
+// de session, plusieurs onglets d'une même règle interrogent les groupes « en même
+// temps », n'en trouvent aucun, et créent chacun un groupe → des doublons. En
+// sérialisant, le 1er crée le groupe et les suivants le retrouvent.
+let groupChain = Promise.resolve();
+
+function withGroupLock(fn) {
+  const run = groupChain.then(fn, fn);
+  groupChain = run.then(
+    () => {},
+    () => {}
+  );
+  return run;
+}
+
+function updateTabGroup(tab, match, groupTabs, rules) {
+  return withGroupLock(() => updateTabGroupInner(tab, match, groupTabs, rules));
+}
+
+async function updateTabGroupInner(tab, match, groupTabs, rules) {
   try {
     if (groupTabs && match) {
       const title = groupTitleFor(match);
@@ -196,6 +220,33 @@ async function updateTabGroup(tab, match, groupTabs, rules) {
   }
 }
 
+// Fusionne les groupes en double (même fenêtre, même titre = un de nos labels)
+// dans un seul. Nettoie les doublons déjà présents et ceux qui passeraient
+// malgré le verrou. Passe par le verrou pour ne pas courir avec la création.
+async function mergeDuplicateGroups() {
+  const { rules, groupTabs } = await getSettings();
+  if (!groupTabs) return;
+  await withGroupLock(async () => {
+    try {
+      const ourTitles = new Set(rules.map(groupTitleFor));
+      const groups = await chrome.tabGroups.query({});
+      for (const plan of planGroupMerges(groups, ourTitles)) {
+        for (const id of plan.mergeIds) {
+          const tabs = await chrome.tabs.query({ groupId: id });
+          if (tabs.length) {
+            await chrome.tabs.group({
+              groupId: plan.keepId,
+              tabIds: tabs.map((t) => t.id),
+            });
+          }
+        }
+      }
+    } catch {
+      // ignorer
+    }
+  });
+}
+
 async function ungroupAllOurGroups(rules) {
   const titles = new Set(rules.map(groupTitleFor));
   try {
@@ -215,6 +266,7 @@ async function ungroupAllOurGroups(rules) {
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== DISCARD_ALARM) return;
+  await mergeDuplicateGroups();
   await discardInactiveTabs();
 });
 
