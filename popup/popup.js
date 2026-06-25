@@ -7,6 +7,9 @@ let rules = [];
 let saveTimer = null;
 
 async function init() {
+  document.getElementById("version").textContent =
+    "v" + chrome.runtime.getManifest().version;
+
   const data = await chrome.storage.sync.get([
     "rules",
     "groupTabs",
